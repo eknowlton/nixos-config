@@ -8,7 +8,6 @@
     ./hardware-configuration.nix
     <home-manager/nixos>
     ./ethan.vim.nix
-    ./ethan.hyprland.nix
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -795,6 +794,8 @@ window {
     walker
     gtk4
     gtk3
+    compose2nix
+    docker-compose
   ];
 
   # List services that you want to enable:
