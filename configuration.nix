@@ -794,7 +794,6 @@ window {
     walker
     gtk4
     gtk3
-    compose2nix
     docker-compose
   ];
 
