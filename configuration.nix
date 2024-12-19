@@ -14,6 +14,9 @@
   nix.settings.auto-optimise-store = true;
 
   virtualisation = {
+    containers = {
+      enable = true;
+    };
     podman = {
       enable = true;
 
@@ -64,9 +67,6 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  services.xserver.enable = true;
-
-
   xdg.portal = {
     enable = true;
     wlr = {
@@ -82,6 +82,15 @@
     };
   };
 
+  services.udisks2 = {
+    enable = true;
+  };
+
+  services.xserver = {
+    enable = true;
+  };
+
+  services.xserver.videoDrivers = ["nvidia"];
   services.xserver.displayManager.gdm = {
     enable = true;
     wayland = true;
@@ -125,7 +134,7 @@
   users.users.ethan = {
     isNormalUser = true;
     description = "Ethan";
-    extraGroups = [ "networkmanager" "wheel" "docker" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "podman" "docker" "input" ];
     packages = with pkgs; [
       httpie
     ];
@@ -139,6 +148,16 @@
     home.stateVersion = "24.05";
 
     programs.kitty.enable = true;
+
+    gtk = {
+      theme = "Adwaita-dark";
+    };
+
+    dconf.settings = {
+      "org/gnome/desktop/interface" = {
+        color-scheme = "prefer-dark";
+      };
+    };
 
     programs.alacritty = {
       enable = true;
@@ -173,6 +192,7 @@
       enable = true;
       extraPortals = with pkgs; [
         xdg-desktop-portal-hyprland
+        xdg-desktop-portal-gtk
       ];
       config = {
         common = {
@@ -192,83 +212,86 @@
       ".config/nwg-bar/bar.json" = {
         source = "/etc/nixos/config/nwg-bar/bar.json";
       };
+      ".config/nyxt/config.lisp" = {
+        source = "/etc/nixos/config/nyxt/config.lisp";
+      };
     };
 
     programs.wofi = {
       enable = true;
       style = ''
-/*
-* wofi style. Colors are from authors below.
-* Base16 Gruvbox dark, medium
-* Author: Dawid Kurek (dawikur@gmail.com), morhetz (https://github.com/morhetz/gruvbox)
-*
-*/
-@define-color base00 #282828;
-@define-color base01 #3C3836;
-@define-color base02 #504945;
-@define-color base03 #665C54;
-@define-color base04 #BDAE93;
-@define-color base06 #D5C4A1;
-@define-color base06 #EBDBB2;
-@define-color base07 #FBF1C7;
-@define-color base08 #FB4934;
-@define-color base09 #FE8019;
-@define-color base0A #FABD2F;
-@define-color base0B #B8BB26;
-@define-color base0C #8EC07C;
-@define-color base0D #83A598;
-@define-color base0E #D3869B;
-@define-color base0F #D65D0E;
+        /*
+        * wofi style. Colors are from authors below.
+        * Base16 Gruvbox dark, medium
+        * Author: Dawid Kurek (dawikur@gmail.com), morhetz (https://github.com/morhetz/gruvbox)
+        *
+        */
+        @define-color base00 #282828;
+        @define-color base01 #3C3836;
+        @define-color base02 #504945;
+        @define-color base03 #665C54;
+        @define-color base04 #BDAE93;
+        @define-color base06 #D5C4A1;
+        @define-color base06 #EBDBB2;
+        @define-color base07 #FBF1C7;
+        @define-color base08 #FB4934;
+        @define-color base09 #FE8019;
+        @define-color base0A #FABD2F;
+        @define-color base0B #B8BB26;
+        @define-color base0C #8EC07C;
+        @define-color base0D #83A598;
+        @define-color base0E #D3869B;
+        @define-color base0F #D65D0E;
 
-window {
-    opacity: 0.9;
-    border:  0px;
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 18px;
-}
+        window {
+        opacity: 0.9;
+        border:  0px;
+        border-radius: 10px;
+        font-family: monospace;
+        font-size: 18px;
+        }
 
 #input {
-	border-radius: 10px 10px 0px 0px;
-    border:  0px;
-    padding: 10px;
-    margin: 0px;
-    font-size: 28px;
-	color: #8EC07C;
-	background-color: #554444;
-}
+        border-radius: 10px 10px 0px 0px;
+        border:  0px;
+        padding: 10px;
+        margin: 0px;
+        font-size: 28px;
+        color: #8EC07C;
+        background-color: #554444;
+        }
 
 #inner-box {
-	margin: 0px;
-	color: @base06;
-	background-color: @base00;
-}
+        margin: 0px;
+        color: @base06;
+        background-color: @base00;
+        }
 
 #outer-box {
-	margin: 0px;
-	background-color: @base00;
-    border-radius: 10px;
-}
+        margin: 0px;
+        background-color: @base00;
+        border-radius: 10px;
+        }
 
 #selected {
-	background-color: #608787;
-}
+        background-color: #608787;
+        }
 
 #entry {
-	padding: 0px;
-    margin: 0px;
-	background-color: @base00;
-}
+        padding: 0px;
+        margin: 0px;
+        background-color: @base00;
+        }
 
 #scroll {
-	margin: 5px;
-	background-color: @base00;
-}
+        margin: 5px;
+        background-color: @base00;
+        }
 
 #text {
-	margin: 0px;
-	padding: 2px 2px 2px 10px;
-}
+        margin: 0px;
+        padding: 2px 2px 2px 10px;
+        }
       '';
     };
 
@@ -401,7 +424,7 @@ window {
             "on-scroll-down" = "brightnessctl set 10%-";
           };
           battery = {
-            "interval" = 60;
+            "interval" = 20;
             "states" = {
               "warning" = 30;
               "critical" = 15;
@@ -598,134 +621,147 @@ window {
 
           wallpaper = [
             ", $HOME/wallpapers/snow-moutains.jpg"
-            ];
+          ];
+        };
+      };
+
+      wayland.windowManager.hyprland = {
+        enable = true;
+        settings = {
+          "$mod" = "SUPER";
+          "$terminal" = "alacritty";
+          "$fileManager" = "nautilus";
+          "$menu" = "wofi --show drun -I";
+          "$runner" = "wofi --show run -e -I";
+          "$launcher" = "nwg-drawer";
+          "$systemMenu" = "nwgbar";
+
+          exec = [
+          ];
+
+          input = {
+            kb_layout = "us";
+            follow_mouse = 2;
+            touchpad = {
+              natural_scroll = true;
+              scroll_factor = 2;
             };
+            sensitivity = 0;
+            scroll_factor = 3;
+          };
+
+          gestures = {
+            workspace_swipe = "on";
+          };
+
+          general = {
+            gaps_in = 4;
+            gaps_out = 8;
+            border_size = 2;
+
+            layout = "master";
+
+            allow_tearing = false;
+          };
+
+          decoration = {
+            rounding = 5;
+            active_opacity = 1;
+            inactive_opacity = 0.65;
+
+            blur = {
+              enabled = false;
+              size = 3;
+              passes = 1;
             };
 
-            wayland.windowManager.hyprland.settings = {
-              "$mod" = "SUPER";
-              "$terminal" = "alacritty";
-              "$fileManager" = "nautilus";
-              "$menu" = "wofi --show drun -I";
-              "$runner" = "wofi --show run -e -I";
-              "$launcher" = "nwg-drawer";
+            drop_shadow = "no";
+            shadow_range = 4;
+            shadow_render_power = 3;
+          };
 
-              exec = [
-              ];
+          dwindle = {
+            pseudotile = "yes";
+            preserve_split = "yes";
+          };
 
-              input = {
-                kb_layout = "us";
-                follow_mouse = 2;
-                touchpad = {
-                  natural_scroll = true;
-                  scroll_factor = 2;
-                };
-                sensitivity = 0;
-                scroll_factor = 3;
-              };
+          group = {
+            groupbar = {
+              font_size = 11;
+              height = 25;
+              text_color = "rgb(ffffff)";
+            };
+          };
 
-              gestures = {
-                workspace_swipe = "on";
-              };
+          misc = {
+            force_default_wallpaper = -1;
+            disable_hyprland_logo = false;
+          };
 
-              general = {
-                gaps_in = 4;
-                gaps_out = 8;
-                border_size = 2;
+          monitor = [
+            "eDP-1,1920x1080@60.0,5760x1080,1.0" 
+            "DP-3,3840x2160@60.0,1920x0,1.0"
+          ];
 
-                layout = "master";
+          bind =
+            [
+              "$mod, Q, killactive"
+              "$mod, B, exec, google-chrome-stable"
+              "$mod, RETURN, exec, alacritty"
+              " CTRL SHIFT, X, exec, 1password"
 
-                allow_tearing = false;
-              };
+              "$mod, GRAVE, focusurgentorlast"
+              "$mod SHIFT, GRAVE, focuscurrentorlast"
 
-              decoration = {
-                rounding = 5;
-                active_opacity = 1;
-                inactive_opacity = 0.65;
+              "$mod SHIFT, SPACE, togglefloating"
+              "$mod SHIFT, F, fullscreen"
 
-                blur = {
-                  enabled = false;
-                  size = 3;
-                  passes = 1;
-                };
+              "$mod, P, exec, pkill grim;  grim -g \"$(slurp)\" - | wl-copy"
+              "$mod CTRL, P, exec, pkill grim; grim -g \"$(slurp)\" $HOME/Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png"
+              "$mod SHIFT, P, exec, pkill grim; grim -o $(hyprctl monitors -j | jq -r '[ .[] | select( .focused ) ][0].name') $HOME/Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png"
 
-                drop_shadow = "no";
-                shadow_range = 4;
-                shadow_render_power = 3;
-              };
+              "$mod, H, movefocus, l"
+              "$mod, L, movefocus, r"
+              "$mod, K, movefocus, u"
+              "$mod, J, movefocus, d"
 
-              dwindle = {
-                pseudotile = "yes";
-                preserve_split = "yes";
-              };
+              "$mod SHIFT, H, movewindow, l"
+              "$mod SHIFT, L, movewindow, r"
+              "$mod SHIFT, K, movewindow, u"
+              "$mod SHIFT, J, movewindow, d"
 
-              group = {
-                groupbar = {
-                  font_size = 11;
-                  height = 25;
-                  text_color = "rgb(ffffff)";
-                };
-              };
+              "$mod ALT, J, movecurrentworkspacetomonitor, l"
+              "$mod ALT, K, movecurrentworkspacetomonitor, r"
 
-              misc = {
-                force_default_wallpaper = -1;
-                disable_hyprland_logo = true;
-              };
-
-              monitor = [
-                "eDP-1, 1920x1080, 0x0, 1"
-                ];
-
-                bind =
-                [
-                "$mod, Q, killactive"
-                "$mod, B, exec, google-chrome-stable"
-                "$mod, RETURN, exec, alacritty"
-
-                "$mod, GRAVE, focusurgentorlast"
-                "$mod SHIFT, GRAVE, focuscurrentorlast"
-
-                "$mod, H, movefocus, l"
-                "$mod, L, movefocus, r"
-                "$mod, K, movefocus, u"
-                "$mod, J, movefocus, d"
-
-                "$mod SHIFT, H, movewindow, l"
-                "$mod SHIFT, L, movewindow, r"
-                "$mod SHIFT, K, movewindow, u"
-                "$mod SHIFT, J, movewindow, d"
-
-                "$mod ALT, J, movecurrentworkspacetomonitor, l"
-                "$mod ALT, K, movecurrentworkspacetomonitor, r"
-
-                "$mod, W, exec, $menu"
-                "$mod SHIFT, W, exec, $runner"
-                "$mod, SPACE, exec, $launcher"
-                "$mod, F, exec, $fileManager"
-                ]
-                ++ (
+              "$mod, W, exec, $menu"
+              "$mod SHIFT, W, exec, $runner"
+              "$mod, SPACE, exec, $launcher"
+              "$mod, ESCAPE, exec, $systemMenu"
+              "$mod, F, exec, $fileManager"
+            ]
+            ++ (
         # workspaces
         # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
         builtins.concatLists (builtins.genList (i:
         let ws = i + 1;
         in [
-        "$mod, code:1${toString i}, workspace, ${toString ws}"
-        "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
+          "$mod, code:1${toString i}, workspace, ${toString ws}"
+          "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
         ]
         )
         9)
         );
 
         windowrulev2 = [
-        "opaque, class:(), title:()"
-        "noshadow, class:(), title:()"
-        "noblur, class:(), title:()"
+          "opaque, class:(), title:()"
+          "noshadow, class:(), title:()"
+          "noblur, class:(), title:()"
         ];
-        };
-        };
+      };
+    };
+  };
 
   # Install firefox.
-  programs.hyprland.enable = true;
   programs.firefox.enable = true;
   programs.zsh.enable = true;
 
@@ -794,7 +830,15 @@ window {
     walker
     gtk4
     gtk3
-    docker-compose
+    podman-compose 
+    qutebrowser
+    nyxt
+    xwayland
+    xwayland-run
+    tor-browser
+    udiskie
+    grim
+    slurp
   ];
 
   # List services that you want to enable:
@@ -823,7 +867,6 @@ window {
     enable = true;
   };
 
-  services.xserver.videoDrivers = ["nvidia"];
 
   hardware.nvidia = {
 
