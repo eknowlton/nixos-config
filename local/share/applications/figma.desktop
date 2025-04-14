@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Figma
+Exec=google-chrome-stable --new-window --app=https://figma.com
